@@ -48,7 +48,7 @@ section .bss
 
 ;Segmneto de dados nao inicializados para as funções
 segment .bss 
-    temp_buffer   resb 4096
+    temp_buffer   resq 1
 
     c_loop        resq 1
     i_loop        resq 1
@@ -306,6 +306,14 @@ show_strings:
     cmp rdi, 0
     je end_show_strings
 
+    mov rax, 9
+    mov rdi, 0
+    mov rsi, [file_size]
+    mov rdx, PROT_WRITE | PROT_READ
+    mov r10, MAP_PRIVATE | MAP_ANONYMOUS
+    syscall
+    mov qword[temp_buffer], rax
+
     jmp .loop
 
     .mostrar_offset:
@@ -332,7 +340,7 @@ show_strings:
     mov rax, [c_loop]
     test rax, rax
     jz .loop
-    mov rax, temp_buffer
+    mov rax, [temp_buffer]
     mov rcx, [c_loop]
     add rax, rcx
     mov byte[rax], 0
@@ -359,7 +367,7 @@ show_strings:
     test rax, rax
     je .mostrar_offset
     .continuacao:
-    mov rdi, temp_buffer
+    mov rdi, [temp_buffer]
     call print_string
     call print_newline
     add qword[printed_lines], 1
@@ -371,7 +379,7 @@ show_strings:
     mov rax, [c_loop]
     test rax, rax
     jz .loop
-    mov rax, temp_buffer
+    mov rax, [temp_buffer]
     mov rcx, [c_loop]
     add rax, rcx
     mov byte[rax], 0
@@ -403,7 +411,7 @@ show_strings:
     cmp byte[rax], 0x7e
     ja .nextElseIf    
     mov rcx, [c_loop]
-    mov rax, temp_buffer
+    mov rax, [temp_buffer]
     add rax, rcx
     mov rdx, [i_loop]
     mov rcx, [file_addr]
@@ -434,9 +442,10 @@ show_strings:
     jz .fail_to_find_any_string
     .retornar:
     ;------Zerar variaveis------
-    mov rdi, temp_buffer
-    mov rsi, 4096
-    call clear_buffer
+    mov rdi, [temp_buffer]
+    mov rsi, [file_size]
+    call free_memory
+
     mov byte[any_output], 0
     mov qword[printed_lines], 0
     mov qword[i_loop], 0

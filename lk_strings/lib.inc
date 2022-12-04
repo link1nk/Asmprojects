@@ -116,14 +116,13 @@ exit:
 ;int string_length(char *);
 ;RDI -> ponteiro para string
 string_length:
-    xor rcx, rcx
+    xor rax, rax
     .loop:
-    cmp byte[rdi + rcx], 0
+    cmp byte[rdi + rax], 0
     je .end
-    inc rcx
+    inc rax
     jmp .loop
     .end:
-    mov rax, rcx
     ret
 ;RAX -> valor de retorno contendo o tamanho da string
 
@@ -408,6 +407,8 @@ print_hex:
     mov rax, rdi
     mov r8, 16
     xor rcx, rcx
+    test rax, rax
+    jz .showZeroEnd
     .loop:
     test rax, rax
     jz .end
@@ -434,6 +435,10 @@ print_hex:
     loop .endLoop
     ret
 
+    .showZeroEnd:
+    mov rdi, '0'
+    call print_char
+    ret
 
 ;void error(char *)
 ;RDI -> error msg
