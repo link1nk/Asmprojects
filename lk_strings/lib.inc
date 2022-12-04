@@ -249,20 +249,27 @@ rewind_file:
     jmp fposition
 
 
-;void *memory_alloc(int, int);
-;RDI -> File Descriptor ou flag MAP_ANONYMOUS
-;RSI -> size of memory (in bytes) to allocation
+;void read_file(int, int, int);
+;RDI -> File Descriptor
+;RSI -> Endereço de para onde ler
+;RDX -> Quantos bytes ler para o endereço especificado
+read_file:
+    mov rax, 0
+    syscall
+    ret
+
+
+;void *memory_alloc(int);
+;RDI -> Tamanho da memoria a ser alocada
 memory_alloc:
+    mov rsi, rdi
     mov rax, 9
-    mov rdx, PROT_WRITE
-    mov r10, MAP_PRIVATE
-    mov r8, rdi
     mov rdi, 0
-    mov r9, 0
+    mov rdx, PROT_WRITE | PROT_READ
+    mov r10, MAP_PRIVATE | MAP_ANONYMOUS
     syscall
     ret
 ;RAX -> ponteiro para a memoria alocada
-
 
 ;void free_memory(int *, size_t);
 ;RDI -> ponteiro para memoria a ser liberada

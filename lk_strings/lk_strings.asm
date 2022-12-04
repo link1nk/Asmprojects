@@ -256,16 +256,20 @@ _start:
     call option_lines
     call option_chars
     
-    ;Mapeia em memoria o arquivo com base em sua identificação(file descriptor)
-    ;Salva o endereço de memoria em que o arquivo foi mapeado
-    ;Exibe mensagem de erro caso não consiga mapear
-    mov rdi, [file_descriptor]
-    mov rsi, [file_size]
+    ;Aloca memoria para o arquivo
+    ;Exibe uma mensagem de erro caso a memoria não foi alocada com sucesso
+    mov rdi, [file_size]
     call memory_alloc
     cmp rax, -1
     mov rdi, error_memory_alloc
     je error 
     mov [file_addr], rax
+
+    ;Le do arquivo para a memoria alocada anteriormente
+    mov rdi, [file_descriptor]
+    mov rsi, [file_addr]
+    mov rdx, [file_size]
+    call read_file
    
     ;Verifica se o usuario quer usar a função --show-strings
     movzx rdi, byte[OPT_show_strings]
