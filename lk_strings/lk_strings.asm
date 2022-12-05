@@ -264,13 +264,13 @@ _start:
     mov rdi, error_memory_alloc
     je error 
     mov [file_addr], rax
-
-    ;Le do arquivo para a memoria alocada anteriormente
+ 
     mov rdi, [file_descriptor]
     mov rsi, [file_addr]
     mov rdx, [file_size]
     call read_file
-   
+
+
     ;Verifica se o usuario quer usar a função --show-strings
     movzx rdi, byte[OPT_show_strings]
     call show_strings

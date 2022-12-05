@@ -60,6 +60,11 @@ global string_equals
 global set_terminal_color
 global parse_uint
 global print_hex
+global read_file
+global error
+global string_hex
+global clear_buffer
+
 
 struc STAT
     .st_dev         resq 1
@@ -251,13 +256,12 @@ rewind_file:
 
 ;void read_file(int, int, int);
 ;RDI -> File Descriptor
-;RSI -> Endereço de para onde ler
-;RDX -> Quantos bytes ler para o endereço especificado
+;RSI -> Endereço a ser mapeado
+;RDX -> Quantos bytes mapear
 read_file:
     mov rax, 0
     syscall
     ret
-
 
 ;void *memory_alloc(int);
 ;RDI -> Tamanho da memoria a ser alocada
@@ -267,6 +271,8 @@ memory_alloc:
     mov rdi, 0
     mov rdx, PROT_WRITE | PROT_READ
     mov r10, MAP_PRIVATE | MAP_ANONYMOUS
+    mov r8, -1
+    mov r9, 0
     syscall
     ret
 ;RAX -> ponteiro para a memoria alocada
@@ -397,6 +403,10 @@ parse_uint:
     movzx rsi, byte[rdi]
     test rsi, rsi
     jz .end
+    cmp rsi, '0'
+    jb .end
+    cmp rsi, '9'
+    ja .end
     inc rdi
     xor rdx, rdx
     mul r8
@@ -443,6 +453,8 @@ print_hex:
     ret
 
     .showZeroEnd:
+    mov rdi, hex_prefix
+    call print_string
     mov rdi, '0'
     call print_char
     ret
